@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8"> <!-- utf-8 works for most cases -->
+    <meta name="viewport" content="width=device-width"> <!-- Forcing initial-scale shouldn't be necessary -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"> <!-- Use the latest (edge) version of IE rendering engine -->
+    <meta name="x-apple-disable-message-reformatting">  <!-- Disable auto-scale in iOS 10 Mail entirely -->
+    <title></title> <!-- The title tag shows in email notifications, like Android 4.4. -->
+
+    <!-- Desktop Outlook chokes on web font references and defaults to Times New Roman, so we force a safe fallback font. -->
+    <!--[if mso]>
+    <style>
+        * {
+            font-family: sans-serif !important;
+        }
+    </style>
+    <![endif]-->
+
+    <!-- All other clients get the webfont reference; some will render the font and others will silently fail to the fallbacks. More on that here: http://stylecampaign.com/blog/2015/02/webfont-support-in-email/ -->
+    <!--[if !mso]><!-->
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans:400,700" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Archivo+Black" rel="stylesheet">
+    <!--<![endif]-->
+
+    <!-- CSS Reset -->
+    <style>
+
+        /* What it does: Remove spaces around the email design added by some email clients. */
+        /* Beware: It can remove the padding / margin and add a background color to the compose a reply window. */
+        html,
+        body {
+            margin: 0 auto !important;
+            padding: 0 !important;
+            height: 100% !important;
+            width: 100% !important;
+        }
+
+        /* What it does: Stops email clients resizing small text. */
+        * {
+            -ms-text-size-adjust: 100%;
+            -webkit-text-size-adjust: 100%;
+        }
+
+        /* What it does: Centers email on Android 4.4 */
+        div[style*="margin: 16px 0"] {
+            margin:0 !important;
+        }
+
+        /* What it does: Stops Outlook from adding extra spacing to tables. */
+        table,
+        td {
+            mso-table-lspace: 0pt !important;
+            mso-table-rspace: 0pt !important;
+        }
+
+        /* What it does: Fixes webkit padding issue. Fix for Yahoo mail table alignment bug. Applies table-layout to the first 2 tables then removes for anything nested deeper. */
+        table {
+            border-spacing: 0 !important;
+            border-collapse: collapse !important;
+            table-layout: fixed !important;
+            margin: 0 auto !important;
+        }
+        table table table {
+            table-layout: auto;
+        }
+
+        /* What it does: Uses a better rendering method when resizing images in IE. */
+        img {
+            -ms-interpolation-mode:bicubic;
+        }
+
+        /* What it does: A work-around for iOS meddling in triggered links. */
+        *[x-apple-data-detectors] {
+            color: inherit !important;
+            text-decoration: none !important;
+        }
+
+        /* What it does: A work-around for Gmail meddling in triggered links. */
+        .x-gmail-data-detectors,
+        .x-gmail-data-detectors *,
+        .aBn {
+            border-bottom: 0 !important;
+            cursor: default !important;
+        }
+
+        /* What it does: Prevents Gmail from displaying an download button on large, non-linked images. */
+        .a6S {
+            display: none !important;
+            opacity: 0.01 !important;
+        }
+        /* If the above doesn't work, add a .g-img class to any image in question. */
+        img.g-img + div {
+            display:none !important;
+        }
+
+        /* What it does: Prevents underlining the button text in Windows 10 */
+        .button-link {
+            text-decoration: none !important;
+        }
+
+        /* What it does: Removes right gutter in Gmail iOS app: https://github.com/TedGoas/Cerberus/issues/89  */
+        /* Create one of these media queries for each additional viewport size you'd like to fix */
+        /* Thanks to Eric Lepetit @ericlepetitsf) for help troubleshooting */
+        @media only screen and (min-device-width: 375px) and (max-device-width: 413px) { /* iPhone 6 and 6+ */
+            .email-container {
+                min-width: 375px !important;
+            }
+        }
+
+    </style>
+
+    <!-- What it does: Makes background images in 72ppi Outlook render at correct size. -->
+    <!--[if gte mso 9]>
+    <xml>
+        <o:OfficeDocumentSettings>
+            <o:AllowPNG/>
+            <o:PixelsPerInch>96</o:PixelsPerInch>
+        </o:OfficeDocumentSettings>
+    </xml>
+    <![endif]-->
+
+    <!-- Progressive Enhancements -->
+    <style>
+
+        /* What it does: Hover styles for buttons */
+        .button-td,
+        .button-a {
+            transition: all 100ms ease-in;
+        }
+        .button-td:hover,
+        .button-a:hover {
+            background: #555555 !important;
+            border-color: #555555 !important;
+        }
+
+        /* Media Queries */
+        @media screen and (max-width: 864px) {
+            .two-col{
+                max-width: 100% !important;
+                padding-left: 0px !important;
+                padding-right: 0px !important;
+            }
+        }
+        @media screen and (max-width: 480px) {
+
+            /* What it does: Forces elements to resize to the full width of their container. Useful for resizing images beyond their max-width. */
+            .fluid {
+                width: 100% !important;
+                max-width: 100% !important;
+                height: auto !important;
+                margin-left: auto !important;
+                margin-right: auto !important;
+            }
+
+            /* What it does: Forces table cells into full-width rows. */
+            .stack-column,
+            .stack-column-center {
+                display: block !important;
+                width: 100% !important;
+                max-width: 100% !important;
+                direction: ltr !important;
+            }
+            /* And center justify these ones. */
+            .center-text {
+                text-align: center !important;
+            }
+
+            /* What it does: Generic utility class for centering. Useful for images, buttons, and nested tables. */
+            .center-on-narrow {
+                text-align: center !important;
+                display: block !important;
+                margin-left: auto !important;
+                margin-right: auto !important;
+                float: none !important;
+            }
+            table.center-on-narrow {
+                display: inline-block !important;
+            }
+
+            .no-top-bottom-padding{
+                padding-top: 0px !important;
+                padding-bottom: 0px !important;
+            }
+            .main-img-table{
+                background-position: 200px bottom !important;
+                background-size: 58% !important;
+            }
+            .img-td{
+                width: 60%!important;
+                padding: 162px 0px 0px 47px!important;
+            }
+            .spacer-td{
+                width: 40%!important;
+            }
+        }
+        @media screen and (max-width: 374px) {
+            .main-img-table{
+                background-position: 175px bottom!important;
+            }
+            .img-td{
+                width: 80%!important;
+                padding: 40px 0px 0px 47px!important;
+            }
+            .spacer-td{
+                width: 20%!important;
+            }
+        }
+
+    </style>
+
+</head>
+<body width="100%" bgcolor="#b7b7b7" style="margin: 0; mso-line-height-rule: exactly;">
+
+    <!-- Preheader Text : (Optional) This text will appear in the inbox preview, but not the email body. -->
+    <div style="display:none;font-size:1px;line-height:1px;max-height:0px;max-width:0px;opacity:0;overflow:hidden;mso-hide:all;font-family: sans-serif;">
+        Onexila<sup>TM</sup> XL is licensed for severe pain, which can be adequately managed only
+        with opioid analgesics. OnexilaTM XL is indicated in adults, and adolescents aged
+        12 years and older.
+    </div>
+    <!-- Visually Hidden Preheader Text : END -->
+
+    <!--
+        Set the email width. Defined in two places:
+        1. max-width for all clients except Desktop Windows Outlook, allowing the email to squish on narrow but never go wider than 850px.
+        2. MSO tags for Desktop Windows Outlook enforce a 850px width.
+    -->
+    <div style="max-width: 850px; margin: auto; background-color: #e0e2e1;" class="email-container">
+        <!--[if mso]>
+        <table role="presentation" aria-hidden="true" cellspacing="0" cellpadding="0" border="0" width="850" align="center">
+            <tr>
+                <td>
+        <![endif]-->
+
+        <!-- Email Header : BEGIN -->
+        <table role="presentation" aria-hidden="true" cellspacing="0" cellpadding="0" border="0" align="center" width="100%" bgcolor="#e9e9e9" style="max-width: 850px;">
+            <tr>
+                <td width="31.8%"></td>
+                <td style="padding: 0px 0px; text-align: center">
+                    <img src="http://www.combustion.co.uk/clients/onexila/images/logoTop.jpg" style="vertical-align:top;">
+                </td>
+                <td width="31.8%" align="center" valign="middle">
+                    <!--<span style="font-family:'Open Sans', sans-serif !important;color:#909190;font-size:14px;line-height:10px;text-decoration:none">view in browser</span>-->
+                </td>
+            </tr>
+        </table>
+        <!-- Email Header : END -->
+
+        <!-- Email Body : BEGIN -->
+        <table role="presentation" aria-hidden="true" cellspacing="0" cellpadding="0" border="0" align="center" width="100%" style="max-width: 850px;">
+
+            <!-- Hero Image, Flush : BEGIN -->
+            <tr>
+                <td>
+                <table cellpadding="0" cellspacing="0" bgcolor="#e0e2e1" width="100%" class="main-img-table" style="background-image: url('http://www.combustion.co.uk/clients/onexila/images/imgMain.jpg'); background-repeat: no-repeat; background-position: right bottom">
+                    <tr>
+                        <td align="left" valign="bottom" width="60%" style="padding: 262px 0px 0px 47px;" class="img-td">
+                            <span style="font-family:'Open Sans', sans-serif !important;color:#333333;font-size:37px;line-height:42px">He could fall</span><br>
+                            <span style="font-family:'Archivo Black', sans-serif !important;color:#0ec2e7;font-size:37px;line-height:42px"><strong>prey to his aid</strong></span><br><br>
+                            <span style="font-family:'Open Sans', sans-serif !important;color:#909190;font-size:15px">We will be at stand 14 at the British Pain Society <br>
+                        50th anniversary ASM. Visit us to find out more<br>
+                        about Onexila<sup>™</sup>XL</span>
+                            <br><br><br><br>
+                            <p style="font-family:'Open Sans', sans-serif !important;color:#848484;font-size:11px;line-height:16px; width: 80%;">
+                                Onexila<sup>TM</sup> XL is licensed for severe pain, which can be adequately managed only
+                                with opioid analgesics. OnexilaTM XL is indicated in adults, and adolescents aged
+                                12 years and older.
+                            </p><br>
+                        </td>
+                        <td width="40%" class="spacer-td"></td>
+                    </tr>
+                </table>
+                </td>
+            </tr>
+            <!-- Hero Image, Flush : END -->
+
+            <!-- 2 Even Columns : BEGIN -->
+            <tr>
+                <td bgcolor="#ffffff" align="center" height="100%" valign="top" width="100%">
+                    <!--[if mso]>
+                    <table role="presentation" aria-hidden="true" border="0" cellspacing="0" cellpadding="0" align="center" width="850">
+                        <tr>
+                            <td align="center" valign="top" width="850">
+                    <![endif]-->
+                    <table role="presentation" aria-hidden="true" border="0" cellpadding="0" cellspacing="0" align="center" width="100%" style="max-width:850px;">
+                        <tr>
+                            <td align="center" valign="top" style="font-size:0; padding: 0px 0;">
+                                <!--[if mso]>
+                                <table role="presentation" aria-hidden="true" border="0" cellspacing="0" cellpadding="0" align="center" width="850">
+                                    <tr>
+                                        <td align="center" valign="top" width="425">
+                                            <br>
+                                            <img src="http://www.combustion.co.uk/clients/onexila/images/circle1.jpg"><br><br>
+                                            Approximately 40% of the UK<br>
+                                            population suffers from a form of<br>
+                                            severe or chronic pain.<sup>1</sup> Severe pain<br>
+                                            has a marked impact on quality of life,<br>
+                                            and a person's ability to undertake<br>
+                                            everyday activities.<sup>2</sup>
+                                            <br><br>
+                                <![endif]-->
+                                <!--[if !mso]><!-->
+                                <div style="display:inline-block; margin: 0px; width:100%; min-width:200px; max-width:425px; vertical-align:top; background-color: #e9e9e9" class="stack-column two-col">
+                                    <table role="presentation" aria-hidden="true" cellspacing="0" cellpadding="0" border="0" width="100%">
+                                        <tr>
+                                            <td style="padding: 10px 10px;">
+                                                <table role="presentation" aria-hidden="true" cellspacing="0" cellpadding="0" border="0" width="100%" style="font-size: 14px;text-align: left;">
+                                                    <tr>
+                                                        <td align="center" style="padding-top: 20px">
+                                                            <img src="http://www.combustion.co.uk/clients/onexila/images/circle1.jpg"><br><br>
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td align="center" class="stack-column-center center-text two-col" style="padding: 0px 20px">
+                                                            <p style="font-family: 'Open Sans', sans-serif !important; font-size: 16px; line-height: 25px; color: #0ec2e7; padding-top: 10px; max-width: 500px;">
+                                                                Approximately<sup style="font-size: 22px"> </sup>40% of the UK population suffers from a form of severe or chronic pain.<sup>1</sup> Severe pain
+                                                                has a marked impact on quality of life, and a person's ability to undertake everyday activities.<sup>2</sup>
+                                                            </p>
+                                                            <br/><br/>
+                                                        </td>
+                                                    </tr>
+                                                </table>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </div>
+                                <!--<![endif]-->
+                                <!--[if mso]>
+                                </td>
+                                <td align="center" valign="top" width="425">
+                                    <br>
+                                    <img src="http://www.combustion.co.uk/clients/onexila/images/circle2.jpg" class="CToWUd"><br><br>
+                                    Onexila<sup>TM</sup> XL once-daily oxycodone<br>
+                                    is a new treatment option for<br>
+                                    patients with severe pain, offering<br>
+                                    comparable efficacy and safety to<br>
+                                    twice-daily oxycodone,<sup>3</sup> with no<br>
+                                    price premium vs Longtec<sup>©</sup>.<sup>4</sup>
+                                    <br><br>
+                                <![endif]-->
+                                <!--[if !mso]><!-->
+                                <div style="display:inline-block; margin: 0px; width:100%; min-width:200px; max-width:425px; vertical-align:top; background-color: #0ec2e7" class="stack-column two-col">
+                                    <table role="presentation" aria-hidden="true" cellspacing="0" cellpadding="0" border="0" width="100%">
+                                        <tr>
+                                            <td style="padding: 10px 10px;">
+                                                <table role="presentation" aria-hidden="true" cellspacing="0" cellpadding="0" border="0" width="100%" style="font-size: 14px;text-align: left;">
+                                                    <tr>
+                                                        <td align="center" style="padding-top: 20px">
+                                                            <img src="http://www.combustion.co.uk/clients/onexila/images/circle2.jpg"><br><br>
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td class="stack-column-center center-text two-col" align="center" style="padding: 0px 20px">
+                                                            <p style="font-family: 'Open Sans', sans-serif !important; font-size: 16px; line-height: 25px; color: #ffffff; padding-top: 10px; max-width: 500px;">
+                                                                Onexila<sup>TM</sup>XL once-daily oxycodone is a new treatment option for patients with severe pain, offering
+                                                                comparable efficacy and safety to twice-daily oxycodone,<sup>3</sup> with no price premium vs Longtec<sup>®</sup>.<sup>4</sup>
+                                                            </p>
+                                                            <br/><br/>
+                                                        </td>
+                                                    </tr>
+                                                </table>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </div>
+                                <!--<![endif]-->
+                                <!--[if mso]>
+                                </td>
+                                </tr>
+                                </table>
+                                <![endif]-->
+                            </td>
+                        </tr>
+                    </table>
+                    <!--[if mso]>
+                    </td>
+                    </tr>
+                    </table>
+                    <![endif]-->
+                </td>
+            </tr>
+            <!-- 2 Even Columns : END -->
+
+            <!-- 1 Column Text: BEGIN -->
+            <tr>
+                <td bgcolor="#001149">
+                    <table role="presentation" aria-hidden="true" cellspacing="0" cellpadding="0" border="0" width="100%">
+                        <tr>
+                            <td align="center">
+                                <br/><br/>
+                                <p style="font-family:'Open Sans', sans-serif !important; color:#ffffff;font-size:20px;line-height:32px; padding: 0px 12%;">
+                                Onexila<sup>TM</sup>XL also has pharmacokinetic properties that may
+                                help control the risk of dependence and addiction associated
+                                with prolonged use of opioid analgesics, along with physical
+                                properties that confront the expected methods of abuse.<sup>5,6</sup>
+                                </p>
+                                <br/><br/>
+                                <p style="font-family:'Open Sans', sans-serif !important;color:#ffffff;font-size:10px;line-height:18px; padding: 0px 11%;">
+                                    1. Fayaz A et al. (2016) <em>BMJ Open</em> 6:e010364. 2. Breivik H et al. (2013) <em>BMC Public Health</em>, 13:1229. 3. Lux EA et al. (2014) <em>Curr Med Res Op</em> 30,
+                                    2365-2375. 4. MIMS. Longtec® pricing. Available at: <a href="http://www.mims.co.uk/drugs/pain/pain-fever/longtec" style="text-decoration:none;color:#fffff0" target="_blank">http://www.mims.co.uk/drugs/pain/pain-fever/longtec</a>.
+                                    [Accessed April 2017]. 5. Data 206 v 1.0 March 2017
+                                </p><br><br>
+
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+
+            <!-- Prescribe title : BEGIN -->
+            <tr style="background-color: #ebebeb">
+                <td height="40" style="padding: 8px 0px 0px 0px; text-align: center; font-family: 'Open Sans', sans-serif !important; font-weight: bold; color: #808080;">
+                    Prescribing information
+                </td>
+            </tr>
+
+            <!-- 2 column prescribing text : BEGIN -->
+            <tr style=" background-color: #ebebeb">
+                <td align="center" height="100%" valign="top" width="100%">
+                    <!--[if mso]>
+                    <table role="presentation" aria-hidden="true" border="0" cellspacing="0" cellpadding="0" align="center" width="850">
+                        <tr>
+                            <td align="center" valign="top" width="850">
+                    <![endif]-->
+                    <table role="presentation" aria-hidden="true" border="0" cellpadding="0" cellspacing="0" align="center" width="100%" style="max-width:850px;">
+                        <tr>
+                            <td align="center" valign="top" style="font-size:0; padding: 10px 5px;">
+                                <!--[if mso]>
+                                <table role="presentation" aria-hidden="true" border="0" cellspacing="0" cellpadding="0" align="center" width="840">
+                                    <tr>
+                                        <td align="left" valign="top">
+                                <![endif]-->
+                                <div style="display:inline-block; margin: 0 -2px; width:50%; min-width:200px; vertical-align:top;" class="stack-column">
+                                    <table role="presentation" aria-hidden="true" cellspacing="0" cellpadding="0" border="0" width="100%">
+                                        <tr>
+                                            <td style="padding: 0px 10px;">
+                                                <table role="presentation" aria-hidden="true" cellspacing="0" cellpadding="0" border="0" width="100%">
+                                                    <tr>
+                                                        <td style="font-family: 'Open Sans', sans-serif !important; color: #808080; font-size: 10px; line-height: 14px; text-align: justify;" class="stack-column-center">
+                                                            <strong>Onexila<sup>TM</sup>XL (oxycodone hydrochloride) Prolonged-release Tablets Prescribing Information (please refer to the full SmPC before prescribing)</strong><br/><br/>
+                                                            <strong>Indications:</strong> Onexila<sup>TM</sup>XL is indicated for severe pain, which can be adequately managed only with opioid analgesics in adults, and adolescents aged 12 years and older. <strong>Available strengths:</strong> Onexila<sup>TM</sup>XL 10, 20, 40 and 80mg x 28 tablets. <strong>Dosage and method of use:</strong> Dosage depends on the pain intensity and patient's individual susceptibility to the treatment. In general, the initial dose for opioid naïve patients is 10 mg given once daily. Patients already receiving opioids may start treatment with higher dosages taking into account their experience with former opioid therapies. Because of individual differences in sensitivity for different opioids, it is recommended that patients should start conservatively with Onexila<sup>TM</sup>XL after conversion from other opioids, with 50-75% of the calculated oxycodone dose. Some patients who take Onexila<sup>TM</sup>XL need rapid release analgesics as rescue medication to control breakthrough pain during dose adjustment. Onexila<sup>TM</sup>XL is not indicated for the treatment of
+                                                            acute pain and/or breakthrough pain. The single dose of the rescue medication should amount to 1/6 of the equianalgesic daily dose of Onexila<sup>TM</sup>XL. Use of the rescue medication more than twice daily indicates that the dose of Onexila<sup>TM</sup>XL needs to be increased. In general, the lowest effective analgesic dose of Onexila<sup>TM</sup>XL should be chosen. For treatment of non-malignant pain a daily dose of 40mg is generally sufficient. Patients with cancer-related pain may require dosages of 80-120mg. If higher doses are required, the dose should be decided individually balancing efficacy with tolerance and risk of undesirable effects. Onexila should not be taken longer than necessary. If long-term treatment is necessary careful and regular monitoring is required to determine whether and to what extent treatment should be continued. If therapy with oxycodone is no longer required, it may be advisable to reduce the daily dose gradually in order to prevent symptoms of a withdrawal syndrome. Risk patients
+                                                            , for example patients with impaired renal or hepatic function, low body weight or slow metabolism of medicinal products, should initially receive half the recommended adult dose if they are opioid naïve. For the lower starting dose, other medicinal products with more appropriate strengths are available. Onexila<sup>TM</sup>XL should be taken once daily at the dosage determined, with or independent of meals with a sufficient amount of liquid. Onexila<sup>TM</sup>XL must be swallowed whole, not chewed or crushed. <strong>Contraindications:</strong> Onexila<sup>TM</sup>XL is contraindicated in patients with a hypersensitivity to the active substance or to any of the excipients, severe respiratory depression with hypoxia and /or hypercapnia, severe chronic obstructive pulmonary disease, Cor pulmonale, severe bronchial asthma, paralytic ileus and acute abdomen, delayed gastric emptying. <strong>Special warnings and precautions for use:</strong> Onexila<sup>TM</sup>XL should be used with caution in elderly or debilitated patients, patients with severe impairment of
+                                                            lung, hepatic or renal function, myxoedema, hypothyroidism, Addison's disease, intoxication psychosis, prostatic hypertrophy, alcoholism, known opioid dependence, delirium tremens, pancreatitis, diseases of the biliary tract, biliary or ureteric colic, conditions with increased brain pressure, disturbances of circulatory regulation, epilepsy or seizure tendency and patients taking MAO inhibitors.
+                                                        </td>
+                                                    </tr>
+                                                </table>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </div>
+                                <!--[if mso]>
+                                </td>
+                                <td align="left" valign="top">
+                                <![endif]-->
+                                <div style="display:inline-block; margin: 0 -2px; width:50%; min-width:200px; vertical-align:top;" class="stack-column">
+                                    <table role="presentation" aria-hidden="true" cellspacing="0" cellpadding="0" border="0" width="100%">
+                                        <tr>
+                                            <td style="padding: 0px 10px;">
+                                                <table role="presentation" aria-hidden="true" cellspacing="0" cellpadding="0" border="0" width="100%">
+                                                    <tr>
+                                                        <td style="font-family: 'Open Sans', sans-serif !important; color: #808080; font-size: 10px; line-height: 14px; text-align: justify;" class="stack-column-center">
+                                                            Oxycodone should be used with caution in patients undergoing bowel-surgery, and only administered post-operatively when the bowel function has been restored. The safety of Onexila<sup>TM</sup>XL used pre-operatively has not been established and cannot be recommended. Long-term use of oxycodone can cause the development of tolerance. Chronic use of oxycodone can cause physical dependence. Withdrawal symptoms may occur following abrupt discontinuation of therapy. Oxycodone has a primary dependence potential.  Onexila<sup>TM</sup>XL should be prescribed with special care in patients with a history of alcohol and drug abuse. The administration of chewed or crushed tablets leads to rapid release and absorption of a potentially fatal dose of oxycodone. Patients with severe hepatic impairment should be closely monitored. Athletes should be made aware this medicine may cause a positive reaction to'anti-doping' tests. This medicinal product contains sucrose, patients with rare hereditary problems of fructose intolerance, glucose-galactose malabsorption or
+                                                            sucrase-isomaltase insufficiency should not take this medicine. <strong>Interactions:</strong> Strong CYP2D6 inhibitors may have an effect on the elimination of oxycodone; potential interactions should be taken into account. Concomitant use of Onexila<sup>TM</sup>XL with alcohol should be avoided. <strong>Pregnancy and lactation:</strong> Use of this medicinal product should be avoided in patients who are pregnant or lactating. Infants born to mothers who have received opioids during the last 3-4 weeks before giving birth should be monitored for respiratory depression. <strong>Ability to drive and use machines:</strong> Oxycodone can impair alertness and reactivity to such an extent that the ability to drive and operate machinery is affected or ceases altogether. The treating physician must assess the individual situation as to whether the patient can drive and/or operate machinery. <strong>Undesirable effects:</strong> For the full list of side effects consult the SmPC for Onexila<sup>TM</sup>XL.'Very Common' and'Common' and selected'Serious' adverse reactions
+                                                            are included in this prescribing information. Very common (≤1/10) adverse reactions include somnolence, dizziness, headache, constipation, nausea, vomiting and pruritus. Common (≤1/100 to &lt;1/10) adverse reactions include anorexia, various psychological adverse reactions including changes in mood, changes in activity and changes in cognitive performance, paraesthesia, lowering of blood pressure, rarely accompanied by secondary symptoms such as palpitations, syncope, respiratory depression, bronchospasm, dry mouth rarely accompanied by thirst and difficulty swallowing, gastrointestinal disorders such as abdominal pain, diarrhoea, eructation, dyspepsia, skin eruptions including rash, in rare cases increased photosensitivity, in isolated cases urticaria or exfoliative dermatitis, micturition disturbances, asthenia, hyperhidrosis and chills. Uncommon (≤1/1,000 to &lt;1/100) serious adverse reactions include hypersensitivity and syndrome of inappropriate antidiuretic hormone
+                                                            secretion. Rare serious (≤1/10000 to &lt;1/1000) adverse reactions include seizures, ileus and cellulitis. Very rare serious &lt;1/10000) adverse reactions include anaphylactic reactions. <strong>MA number:</strong> PL 33155/0042, 0044-0046 <strong>Cost:</strong> Per packs of 28: £12.52 for 10mg and 20mg; £25.04 for 40mg; and £50.09 for 80mg. <strong>MAH:</strong> Rivopharm UK Ltd, 30th Floor, 40 Bank Street, Canary Wharf, London, E14 5NR. <strong>Distributor:</strong> Aspire Pharma Ltd, Unit 4, Rotherbrook Court, Bedford Road, Petersfield, Hampshire, GU32 3QG. <strong>Legal category:</strong> POM Schedule 2 Controlled Drug. <strong>Date reviewed:</strong> March 2017. <strong>Version number:</strong> 1010356189 v 2.0.
+                                                        </td>
+                                                    </tr>
+                                                </table>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </div>
+                                <!--[if mso]>
+                                </td>
+                                </tr>
+                                </table>
+                                <![endif]-->
+                            </td>
+                        </tr>
+                        <tr>
+                            <td align="center" valign="top" style="font-size:0; padding: 10px 15px;">
+                                <table role="presentation" aria-hidden="true" border="0" cellpadding="0" cellspacing="0" align="center" width="100%" style="border: 1px solid #808080; margin: auto;">
+                                    <tr>
+                                        <td valign="middle" style="text-align: center; color:#808080; padding: 10px 20px; font-family:'Open Sans', sans-serif !important; font-size: 15px; line-height: 20px;">
+                                            Adverse events should be reported. Reporting forms and information can be found at <a href="www.mhra.gov.uk/yellowcard">www.mhra.gov.uk/yellowcard</a>
+                                            <br/>Adverse events should also be reported to Rivopharm UK Ltd on 01279 406759.
+                                        </td>
+                                    </tr>
+                                </table>
+                            </td>
+                        </tr>
+                    </table>
+                    <!--[if mso]>
+                    </td>
+                    </tr>
+                    </table>
+                    <![endif]-->
+                </td>
+            </tr>
+
+        </table>
+        <!-- Email Body : END -->
+
+        <!-- Email Footer : BEGIN -->
+        <table role="presentation" aria-hidden="true" cellspacing="0" cellpadding="0" border="0" align="center" width="100%" style="max-width: 850px; background-color: #ebebeb">
+            <tr>
+                <td align="center" height="100%" valign="top" width="100%" style="padding: 0px 0px;">
+                    <!--[if mso]>
+                    <table role="presentation" aria-hidden="true" border="0" cellspacing="0" cellpadding="0" align="center" width="850">
+                        <tr>
+                            <td align="center" valign="top" width="850">
+                    <![endif]-->
+                    <table role="presentation" aria-hidden="true" border="0" cellpadding="0" cellspacing="0" align="center" width="100%" style="max-width:850px;">
+                        <tr>
+                            <td align="center" valign="top" style="font-size:0;">
+                                <!--[if mso]>
+                                <table role="presentation" aria-hidden="true" border="0" cellspacing="0" cellpadding="0" align="center" width="850">
+                                    <tr>
+                                        <td align="left" valign="top" width="33%">
+                                <![endif]-->
+                                <div style="display:inline-block; margin: 0 -2px; max-width:33.33%; min-width:220px; vertical-align:top; width:100%;" class="stack-column">
+                                    <table role="presentation" aria-hidden="true" cellspacing="0" cellpadding="0" border="0" width="100%">
+                                        <tr>
+                                            <td style="padding: 10px 10px;">
+                                                <table role="presentation" aria-hidden="true" cellspacing="0" cellpadding="0" border="0" width="100%" style="font-size: 14px;text-align: left;">
+                                                    <tr>
+                                                        <td align="center" style="line-height: 20px; padding-top: 25px;" class="stack-column-center center-text no-top-bottom-padding">
+                                                            <a href="http://www.onexila.co.uk" style="font-family:'Open Sans', sans-serif !important;color:#0cc3e5;text-decoration:none;font-size:15px" target="_blank">Unsubscribe</a>
+                                                        </td>
+                                                    </tr>
+                                                </table>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </div>
+                                <!--[if mso]>
+                                </td>
+                                <td align="left" valign="top" width="33%">
+                                <![endif]-->
+                                <div style="display:inline-block; margin: 0 -2px; max-width:33.33%; min-width:220px; vertical-align:top; width:100%;" class="stack-column">
+                                    <table role="presentation" aria-hidden="true" cellspacing="0" cellpadding="0" border="0" width="100%">
+                                        <tr>
+                                            <td style="padding: 10px 10px;">
+                                                <table role="presentation" aria-hidden="true" cellspacing="0" cellpadding="0" border="0" width="100%" style="font-size: 14px;text-align: left;">
+                                                    <tr>
+                                                        <td align="center" class="stack-column-center center-text">
+                                                            <img src="http://www.combustion.co.uk/clients/onexila/images/foterLogo.jpg">
+                                                        </td>
+                                                    </tr>
+                                                </table>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </div>
+                                <!--[if mso]>
+                                </td>
+                                <td align="left" valign="top" width="33%">
+                                <![endif]-->
+                                <div style="display:inline-block; margin: 0 -2px; max-width:33.33%; min-width:220px; vertical-align:top; width:100%;" class="stack-column">
+                                    <table role="presentation" aria-hidden="true" cellspacing="0" cellpadding="0" border="0" width="100%">
+                                        <tr>
+                                            <td style="padding: 10px 10px;">
+                                                <table role="presentation" aria-hidden="true" cellspacing="0" cellpadding="0" border="0" width="100%" style="font-size: 14px;text-align: left;">
+                                                    <tr>
+                                                        <td style="font-family:'Open Sans', sans-serif !important;color:#808080;line-height:13px;font-size:11px; padding-top: 25px;" class="stack-column-center center-text no-top-bottom-padding">
+                                                            ONX/UK/041706<br>Date of preparation: April 2017
+                                                        </td>
+                                                    </tr>
+                                                </table>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </div>
+                                <!--[if mso]>
+                                </td>
+                                </tr>
+                                </table>
+                                <![endif]-->
+                            </td>
+                        </tr>
+                    </table>
+                    <!--[if mso]>
+                    </td>
+                    </tr>
+                    </table>
+                    <![endif]-->
+                </td>
+            </tr>
+        </table>
+        <!-- Email Footer : END -->
+
+        <!--[if mso]>
+        </td>
+        </tr>
+        </table>
+        <![endif]-->
+    </div>
+</body>
+</html>
